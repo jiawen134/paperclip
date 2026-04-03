@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock3, ExternalLink, Settings } from "lucide-react";
 import type { InstanceSchedulerHeartbeatAgent } from "@paperclipai/shared";
@@ -27,14 +28,15 @@ function buildAgentHref(agent: InstanceSchedulerHeartbeatAgent) {
 }
 
 export function InstanceSettings() {
+  const { t } = useTranslation("settings");
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Instance Settings" },
-      { label: "Heartbeats" },
+      { label: t("instanceSettings") },
+      { label: t("schedulerHeartbeats") },
     ]);
   }, [setBreadcrumbs]);
 
@@ -73,7 +75,7 @@ export function InstanceSettings() {
       ]);
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to update heartbeat.");
+      setActionError(error instanceof Error ? error.message : t("failedToUpdateHeartbeat"));
     },
   });
 
@@ -126,7 +128,7 @@ export function InstanceSettings() {
       ]);
     },
     onError: (error) => {
-      setActionError(error instanceof Error ? error.message : "Failed to disable all heartbeats.");
+      setActionError(error instanceof Error ? error.message : t("failedToDisableAllHeartbeats"));
     },
   });
 
@@ -150,7 +152,7 @@ export function InstanceSettings() {
   }, [agents]);
 
   if (heartbeatsQuery.isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading scheduler heartbeats...</div>;
+    return <div className="text-sm text-muted-foreground">{t("loadingSchedulerHeartbeats")}</div>;
   }
 
   if (heartbeatsQuery.error) {
@@ -158,7 +160,7 @@ export function InstanceSettings() {
       <div className="text-sm text-destructive">
         {heartbeatsQuery.error instanceof Error
           ? heartbeatsQuery.error.message
-          : "Failed to load scheduler heartbeats."}
+          : t("failedToLoadSchedulerHeartbeats")}
       </div>
     );
   }
@@ -168,7 +170,7 @@ export function InstanceSettings() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">Scheduler Heartbeats</h1>
+          <h1 className="text-lg font-semibold">{t("schedulerHeartbeats")}</h1>
         </div>
         <p className="text-sm text-muted-foreground">
           Agents with a timer heartbeat enabled across all of your companies.
@@ -193,7 +195,7 @@ export function InstanceSettings() {
               disableAllMutation.mutate(agents);
             }}
           >
-            {disableAllMutation.isPending ? "Disabling..." : "Disable All"}
+            {disableAllMutation.isPending ? t("disabling") : t("disableAll")}
           </Button>
         )}
       </div>
@@ -207,7 +209,7 @@ export function InstanceSettings() {
       {agents.length === 0 ? (
         <EmptyState
           icon={Clock3}
-          message="No scheduler heartbeats match the current criteria."
+          message={t("noSchedulerHeartbeats")}
         />
       ) : (
         <div className="space-y-4">

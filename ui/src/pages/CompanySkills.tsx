@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type SVGProps } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
@@ -249,6 +250,7 @@ function NewSkillForm({
   isPending: boolean;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation("settings");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
@@ -259,7 +261,7 @@ function NewSkillForm({
         <Input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Skill name"
+          placeholder={t("skillName")}
           className="h-9 rounded-none border-0 border-b border-border px-0 shadow-none focus-visible:ring-0"
         />
         <Input
@@ -271,7 +273,7 @@ function NewSkillForm({
         <Textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}
-          placeholder="Short description"
+          placeholder={t("shortDescription")}
           className="min-h-20 rounded-none border-0 border-b border-border px-0 shadow-none focus-visible:ring-0"
         />
         <div className="flex items-center justify-end gap-2">
@@ -283,7 +285,7 @@ function NewSkillForm({
             onClick={() => onCreate({ name, slug: slug || null, description: description || null })}
             disabled={isPending || name.trim().length === 0}
           >
-            {isPending ? "Creating..." : "Create skill"}
+            {isPending ? t("creatingSkill") : t("createSkill")}
           </Button>
         </div>
       </div>
@@ -525,6 +527,7 @@ function SkillPane({
   onSave: () => void;
   savePending: boolean;
 }) {
+  const { t } = useTranslation("settings");
   const { pushToast } = useToast();
 
   if (!detail) {
@@ -534,7 +537,7 @@ function SkillPane({
     return (
       <EmptyState
         icon={Boxes}
-        message="Select a skill to inspect its files."
+        message={t("selectSkillToInspect")}
       />
     );
   }
@@ -620,7 +623,7 @@ function SkillPane({
                   </Button>
                 )}
                 {updateStatus?.supported && !updateStatus.hasUpdate && !updateStatusLoading && (
-                  <span className="text-xs text-muted-foreground">Up to date</span>
+                  <span className="text-xs text-muted-foreground">{t("upToDate")}</span>
                 )}
                 {!updateStatus?.supported && updateStatus?.reason && (
                   <span className="text-xs text-muted-foreground">{updateStatus.reason}</span>
@@ -733,6 +736,7 @@ function SkillPane({
 }
 
 export function CompanySkills() {
+  const { t } = useTranslation("settings");
   const { "*": routePath } = useParams<{ "*": string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -757,8 +761,8 @@ export function CompanySkills() {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Skills", href: "/skills" },
-      ...(routeSkillId ? [{ label: "Detail" }] : []),
+      { label: t("skills"), href: "/skills" },
+      ...(routeSkillId ? [{ label: t("detail") }] : []),
     ]);
   }, [routeSkillId, setBreadcrumbs]);
 
@@ -988,7 +992,7 @@ export function CompanySkills() {
   });
 
   if (!selectedCompanyId) {
-    return <EmptyState icon={Boxes} message="Select a company to manage skills." />;
+    return <EmptyState icon={Boxes} message={t("selectCompanyToManageSkills")} />;
   }
 
   function handleAddSkillSource() {
@@ -1049,7 +1053,7 @@ export function CompanySkills() {
           <div className="border-b border-border px-4 py-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <h1 className="text-base font-semibold">Skills</h1>
+                <h1 className="text-base font-semibold">{t("skills")}</h1>
                 <p className="text-xs text-muted-foreground">
                   {skillsQuery.data?.length ?? 0} available
                 </p>
@@ -1075,7 +1079,7 @@ export function CompanySkills() {
               <input
                 value={skillFilter}
                 onChange={(event) => setSkillFilter(event.target.value)}
-                placeholder="Filter skills"
+                placeholder={t("filterSkills")}
                 className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>

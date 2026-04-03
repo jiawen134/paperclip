@@ -1,4 +1,5 @@
 import { ChangeEvent, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_FEEDBACK_DATA_SHARING_TERMS_VERSION } from "@paperclipai/shared";
 import { useCompany } from "../context/CompanyContext";
@@ -26,6 +27,7 @@ type AgentSnippetInput = {
 const FEEDBACK_TERMS_URL = import.meta.env.VITE_FEEDBACK_TERMS_URL?.trim() || "https://paperclip.ing/tos";
 
 export function CompanySettings() {
+  const { t } = useTranslation("settings");
   const {
     companies,
     selectedCompany,
@@ -91,13 +93,13 @@ export function CompanySettings() {
     onSuccess: (_company, enabled) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.companies.all });
       pushToast({
-        title: enabled ? "Feedback sharing enabled" : "Feedback sharing disabled",
+        title: enabled ? t("feedbackSharingEnabled") : t("feedbackSharingDisabled"),
         tone: "success",
       });
     },
     onError: (err) => {
       pushToast({
-        title: "Failed to update feedback sharing",
+        title: t("failedToUpdateFeedbackSharing"),
         body: err instanceof Error ? err.message : "Unknown error",
         tone: "error",
       });
@@ -224,7 +226,7 @@ export function CompanySettings() {
   useEffect(() => {
     setBreadcrumbs([
       { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings" }
+      { label: t("settings") }
     ]);
   }, [setBreadcrumbs, selectedCompany?.name]);
 
@@ -248,7 +250,7 @@ export function CompanySettings() {
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-2">
         <Settings className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-lg font-semibold">Company Settings</h1>
+        <h1 className="text-lg font-semibold">{t("companySettings")}</h1>
       </div>
 
       {/* General */}
@@ -385,16 +387,16 @@ export function CompanySettings() {
             onClick={handleSaveGeneral}
             disabled={generalMutation.isPending || !companyName.trim()}
           >
-            {generalMutation.isPending ? "Saving..." : "Save changes"}
+            {generalMutation.isPending ? t("saving") : t("saveChanges")}
           </Button>
           {generalMutation.isSuccess && (
-            <span className="text-xs text-muted-foreground">Saved</span>
+            <span className="text-xs text-muted-foreground">{t("saved")}</span>
           )}
           {generalMutation.isError && (
             <span className="text-xs text-destructive">
               {generalMutation.error instanceof Error
                   ? generalMutation.error.message
-                  : "Failed to save"}
+                  : t("failedToSave")}
             </span>
           )}
         </div>

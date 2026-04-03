@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Puzzle, ArrowLeft, ShieldAlert, ActivitySquare, CheckCircle, XCircle, Loader2, Clock, Cpu, Webhook, CalendarClock, AlertTriangle } from "lucide-react";
 import { useCompany } from "@/context/CompanyContext";
@@ -58,6 +59,7 @@ import {
  * @see doc/plugins/PLUGIN_SPEC.md §19.8 — Plugin Settings UI.
  */
 export function PluginSettings() {
+  const { t } = useTranslation("settings");
   const { selectedCompany, selectedCompanyId } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { companyPrefix, pluginId } = useParams<{ companyPrefix?: string; pluginId: string }>();
@@ -115,8 +117,8 @@ export function PluginSettings() {
   useEffect(() => {
     setBreadcrumbs([
       { label: selectedCompany?.name ?? "Company", href: "/dashboard" },
-      { label: "Settings", href: "/instance/settings/heartbeats" },
-      { label: "Plugins", href: "/instance/settings/plugins" },
+      { label: t("settings"), href: "/instance/settings/heartbeats" },
+      { label: t("plugins"), href: "/instance/settings/plugins" },
       { label: plugin?.manifestJson?.displayName ?? plugin?.packageName ?? "Plugin Details" },
     ]);
   }, [selectedCompany?.name, setBreadcrumbs, companyPrefix, plugin]);
@@ -126,7 +128,7 @@ export function PluginSettings() {
   }, [pluginId]);
 
   if (pluginLoading) {
-    return <div className="p-4 text-sm text-muted-foreground">Loading plugin details...</div>;
+    return <div className="p-4 text-sm text-muted-foreground">{t("loadingPluginDetails")}</div>;
   }
 
   if (!plugin) {
@@ -167,8 +169,8 @@ export function PluginSettings() {
         <PageTabBar
           align="start"
           items={[
-            { value: "configuration", label: "Configuration" },
-            { value: "status", label: "Status" },
+            { value: "configuration", label: t("configuration") },
+            { value: "status", label: t("statusLabel") },
           ]}
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as "configuration" | "status")}
@@ -177,19 +179,19 @@ export function PluginSettings() {
         <TabsContent value="configuration" className="space-y-6">
           <div className="space-y-8">
             <section className="space-y-5">
-              <h2 className="text-base font-semibold">About</h2>
+              <h2 className="text-base font-semibold">{t("about")}</h2>
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(220px,0.8fr)]">
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">{t("descriptionLabel")}</h3>
                   <p className="text-sm leading-6 text-foreground/90">{pluginDescription}</p>
                 </div>
                 <div className="space-y-4 text-sm">
                   <div className="space-y-1.5">
-                    <h3 className="font-medium text-muted-foreground">Author</h3>
+                    <h3 className="font-medium text-muted-foreground">{t("author")}</h3>
                     <p className="text-foreground">{plugin.manifestJson.author}</p>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-medium text-muted-foreground">Categories</h3>
+                    <h3 className="font-medium text-muted-foreground">{t("categories")}</h3>
                     <div className="flex flex-wrap gap-2">
                       {plugin.categories.length > 0 ? (
                         plugin.categories.map((category) => (
@@ -210,7 +212,7 @@ export function PluginSettings() {
 
             <section className="space-y-4">
               <div className="space-y-1">
-                <h2 className="text-base font-semibold">Settings</h2>
+                <h2 className="text-base font-semibold">{t("settings")}</h2>
               </div>
               {hasCustomSettingsPage ? (
                 <div className="space-y-3">
@@ -487,25 +489,25 @@ export function PluginSettings() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">Details</CardTitle>
+                  <CardTitle className="text-base">{t("details")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm text-muted-foreground">
                   <div className="flex justify-between gap-3">
-                    <span>Plugin ID</span>
+                    <span>{t("pluginId")}</span>
                     <span className="font-mono text-xs text-right">{plugin.id}</span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Plugin Key</span>
+                    <span>{t("pluginKey")}</span>
                     <span className="font-mono text-xs text-right">{plugin.pluginKey}</span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>NPM Package</span>
+                    <span>{t("npmPackage")}</span>
                     <span className="max-w-[170px] truncate text-right text-xs" title={plugin.packageName}>
                       {plugin.packageName}
                     </span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Version</span>
+                    <span>{t("version")}</span>
                     <span className="text-right text-foreground">v{plugin.manifestJson.version ?? plugin.version}</span>
                   </div>
                 </CardContent>
@@ -549,7 +551,7 @@ interface PluginConfigFormProps {
   schema: JsonSchemaNode;
   initialValues?: Record<string, unknown>;
   isLoading?: boolean;
-  /** Current plugin lifecycle status — "Test Configuration" only available when `ready`. */
+  /** Current plugin lifecycle status — t("testConfiguration") only available when `ready`. */
   pluginStatus?: string;
   /** Whether the plugin worker implements `validateConfig`. */
   supportsConfigTest?: boolean;
@@ -563,6 +565,7 @@ interface PluginConfigFormProps {
  * re-renders on field changes, not the entire page.
  */
 function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginStatus, supportsConfigTest }: PluginConfigFormProps) {
+  const { t } = useTranslation("settings");
   const queryClient = useQueryClient();
 
   // Form values: start with saved values, fall back to schema defaults
@@ -600,7 +603,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
     mutationFn: (configJson: Record<string, unknown>) =>
       pluginsApi.saveConfig(pluginId, configJson),
     onSuccess: () => {
-      setSaveMessage({ type: "success", text: "Configuration saved." });
+      setSaveMessage({ type: "success", text: t("configurationSaved") });
       setTestResult(null);
       queryClient.invalidateQueries({ queryKey: queryKeys.plugins.config(pluginId) });
       // Clear success message after 3s
@@ -617,7 +620,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
       pluginsApi.testConfig(pluginId, configJson),
     onSuccess: (result) => {
       if (result.valid) {
-        setTestResult({ type: "success", text: "Configuration test passed." });
+        setTestResult({ type: "success", text: t("configurationTestPassed") });
       } else {
         setTestResult({ type: "error", text: result.message || "Configuration test failed." });
       }
@@ -714,7 +717,7 @@ function PluginConfigForm({ pluginId, schema, initialValues, isLoading, pluginSt
               Saving...
             </>
           ) : (
-            "Save Configuration"
+            t("saveConfiguration")
           )}
         </Button>
         {pluginStatus === "ready" && supportsConfigTest && (

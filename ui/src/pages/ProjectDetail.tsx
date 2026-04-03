@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useParams, useNavigate, useLocation, Navigate } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PROJECT_COLORS, isUuidLike, type BudgetPolicySummary, type ExecutionWorkspace } from "@paperclipai/shared";
@@ -68,6 +69,7 @@ function OverviewContent({
   onUpdate: (data: Record<string, unknown>) => void;
   imageUploadHandler?: (file: File) => Promise<string>;
 }) {
+  const { t } = useTranslation("projects");
   return (
     <div className="space-y-6">
       <InlineEditor
@@ -75,21 +77,21 @@ function OverviewContent({
         onSave={(description) => onUpdate({ description })}
         as="p"
         className="text-sm text-muted-foreground"
-        placeholder="Add a description..."
+        placeholder={t("addDescription")}
         multiline
         imageUploadHandler={imageUploadHandler}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="text-muted-foreground">Status</span>
+          <span className="text-muted-foreground">{t("status")}</span>
           <div className="mt-1">
             <StatusBadge status={project.status} />
           </div>
         </div>
         {project.targetDate && (
           <div>
-            <span className="text-muted-foreground">Target Date</span>
+            <span className="text-muted-foreground">{t("targetDate")}</span>
             <p>{project.targetDate}</p>
           </div>
         )}
@@ -107,6 +109,7 @@ function ColorPicker({
   currentColor: string;
   onSelect: (color: string) => void;
 }) {
+  const { t } = useTranslation("projects");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -127,7 +130,7 @@ function ColorPicker({
         onClick={() => setOpen(!open)}
         className="shrink-0 h-5 w-5 rounded-md cursor-pointer hover:ring-2 hover:ring-foreground/20 transition-[box-shadow]"
         style={{ backgroundColor: currentColor }}
-        aria-label="Change project color"
+        aria-label={t("changeProjectColor")}
       />
       {open && (
         <div className="absolute top-full left-0 mt-2 p-2 bg-popover border border-border rounded-lg shadow-lg z-50 w-max">
@@ -145,7 +148,7 @@ function ColorPicker({
                     : "hover:ring-2 hover:ring-foreground/30"
                 }`}
                 style={{ backgroundColor: color }}
-                aria-label={`Select color ${color}`}
+                aria-label={t("selectColor", { color })}
               />
             ))}
           </div>
@@ -221,6 +224,7 @@ function ProjectWorkspacesContent({
   projectRef: string;
   summaries: ReturnType<typeof buildProjectWorkspaceSummaries>;
 }) {
+  const { t } = useTranslation("projects");
   const queryClient = useQueryClient();
   const [runtimeActionKey, setRuntimeActionKey] = useState<string | null>(null);
   const [closingWorkspace, setClosingWorkspace] = useState<{
@@ -250,7 +254,7 @@ function ProjectWorkspacesContent({
   });
 
   if (summaries.length === 0) {
-    return <p className="text-sm text-muted-foreground">No non-default workspace activity yet.</p>;
+    return <p className="text-sm text-muted-foreground">{t("noWorkspaceActivityYet")}</p>;
   }
 
   const activeSummaries = summaries.filter((summary) => summary.executionWorkspaceStatus !== "cleanup_failed");
@@ -321,7 +325,7 @@ function ProjectWorkspacesContent({
                 ) : (
                   <Play className="h-3 w-3" />
                 )}
-                {hasRunningServices ? "Stop" : "Start"}
+                {hasRunningServices ? t("stop") : t("start")}
               </Button>
             ) : null}
             {summary.kind === "execution_workspace" && summary.executionWorkspaceId && summary.executionWorkspaceStatus ? (
@@ -335,7 +339,7 @@ function ProjectWorkspacesContent({
                   status: summary.executionWorkspaceStatus!,
                 })}
               >
-                {summary.executionWorkspaceStatus === "cleanup_failed" ? "Retry close" : "Close"}
+                {summary.executionWorkspaceStatus === "cleanup_failed" ? t("retryClose") : t("close")}
               </Button>
             ) : null}
           </div>
@@ -377,7 +381,7 @@ function ProjectWorkspacesContent({
         {/* Issues */}
         {summary.issues.length > 0 ? (
           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-            <span className="font-medium text-muted-foreground/70">Issues</span>
+            <span className="font-medium text-muted-foreground/70">{t("linkedIssues")}</span>
             {visibleIssues.map((issue) => (
               <IssuesQuicklook key={issue.id} issue={issue}>
                 <Link
@@ -440,6 +444,7 @@ function ProjectWorkspacesContent({
 /* ── Main project page ── */
 
 export function ProjectDetail() {
+  const { t } = useTranslation("projects");
   const { companyPrefix, projectId, filter } = useParams<{
     companyPrefix?: string;
     projectId: string;
@@ -565,15 +570,15 @@ export function ProjectDetail() {
       invalidateProject();
       const name = updatedProject?.name ?? project?.name ?? "Project";
       if (archived) {
-        pushToast({ title: `"${name}" has been archived`, tone: "success" });
+        pushToast({ title: t("hasBeenArchived", { name }), tone: "success" });
         navigate("/dashboard");
       } else {
-        pushToast({ title: `"${name}" has been unarchived`, tone: "success" });
+        pushToast({ title: t("hasBeenUnarchived", { name }), tone: "success" });
       }
     },
     onError: (_, archived) => {
       pushToast({
-        title: archived ? "Failed to archive project" : "Failed to unarchive project",
+        title: archived ? t("failedToArchiveProject") : t("failedToUnarchiveProject"),
         tone: "error",
       });
     },
@@ -596,7 +601,7 @@ export function ProjectDetail() {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Projects", href: "/projects" },
+      { label: t("projects"), href: "/projects" },
       { label: project?.name ?? routeProjectRef ?? "Project" },
     ]);
   }, [setBreadcrumbs, project, routeProjectRef]);
@@ -850,11 +855,11 @@ export function ProjectDetail() {
       <Tabs value={activeTab ?? "list"} onValueChange={(value) => handleTabChange(value as ProjectTab)}>
         <PageTabBar
           items={[
-            { value: "list", label: "Issues" },
-            { value: "overview", label: "Overview" },
-            ...(showWorkspacesTab ? [{ value: "workspaces", label: "Workspaces" }] : []),
-            { value: "configuration", label: "Configuration" },
-            { value: "budget", label: "Budget" },
+            { value: "list", label: t("issues") },
+            { value: "overview", label: t("overview") },
+            ...(showWorkspacesTab ? [{ value: "workspaces", label: t("workspaces") }] : []),
+            { value: "configuration", label: t("configuration") },
+            { value: "budget", label: t("budget") },
             ...pluginTabItems.map((item) => ({
               value: item.value,
               label: item.label,
@@ -894,7 +899,7 @@ export function ProjectDetail() {
             />
           )
         ) : (
-          <p className="text-sm text-muted-foreground">Loading workspaces...</p>
+          <p className="text-sm text-muted-foreground">{t("loadingWorkspaces")}</p>
         )
       ) : null}
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useParams } from "@/lib/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ExecutionWorkspace, Project, ProjectWorkspace } from "@paperclipai/shared";
@@ -211,6 +212,7 @@ function WorkspaceLink({
 }
 
 export function ExecutionWorkspaceDetail() {
+  const { t } = useTranslation("projects");
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const queryClient = useQueryClient();
   const { setBreadcrumbs } = useBreadcrumbs();
@@ -289,9 +291,9 @@ export function ExecutionWorkspaceDetail() {
   useEffect(() => {
     if (!workspace) return;
     const crumbs = [
-      { label: "Projects", href: "/projects" },
+      { label: t("projects"), href: "/projects" },
       ...(project ? [{ label: project.name, href: `/projects/${projectRef}` }] : []),
-      ...(project ? [{ label: "Workspaces", href: `/projects/${projectRef}/workspaces` }] : []),
+      ...(project ? [{ label: t("workspaces"), href: `/projects/${projectRef}/workspaces` }] : []),
       { label: workspace.name },
     ];
     setBreadcrumbs(crumbs);
@@ -313,7 +315,7 @@ export function ExecutionWorkspaceDetail() {
       setErrorMessage(null);
     },
     onError: (error) => {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to save execution workspace.");
+      setErrorMessage(error instanceof Error ? error.message : t("failedToSaveExecutionWorkspace"));
     },
   });
   const workspaceOperationsQuery = useQuery({
@@ -331,23 +333,23 @@ export function ExecutionWorkspaceDetail() {
       setErrorMessage(null);
       setRuntimeActionMessage(
         action === "stop"
-          ? "Runtime services stopped."
+          ? t("runtimeServicesStopped")
           : action === "restart"
-            ? "Runtime services restarted."
-            : "Runtime services started.",
+            ? t("runtimeServicesRestarted")
+            : t("runtimeServicesStarted"),
       );
     },
     onError: (error) => {
       setRuntimeActionMessage(null);
-      setErrorMessage(error instanceof Error ? error.message : "Failed to control runtime services.");
+      setErrorMessage(error instanceof Error ? error.message : t("failedToControlRuntimeServices"));
     },
   });
 
-  if (workspaceQuery.isLoading) return <p className="text-sm text-muted-foreground">Loading workspace…</p>;
+  if (workspaceQuery.isLoading) return <p className="text-sm text-muted-foreground">{t("loadingWorkspace")}</p>;
   if (workspaceQuery.error) {
     return (
       <p className="text-sm text-destructive">
-        {workspaceQuery.error instanceof Error ? workspaceQuery.error.message : "Failed to load workspace"}
+        {workspaceQuery.error instanceof Error ? workspaceQuery.error.message : t("failedToLoadWorkspace")}
       </p>
     );
   }
@@ -411,7 +413,7 @@ export function ExecutionWorkspaceDetail() {
                     onClick={() => setCloseDialogOpen(true)}
                     disabled={workspace.status === "archived"}
                   >
-                    {workspace.status === "cleanup_failed" ? "Retry close" : "Close workspace"}
+                    {workspace.status === "cleanup_failed" ? t("retryClose") : t("closeWorkspace")}
                   </Button>
                 </div>
               </div>
@@ -577,7 +579,7 @@ export function ExecutionWorkspaceDetail() {
                 </Button>
                 {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
                 {!errorMessage && runtimeActionMessage ? <p className="text-sm text-muted-foreground">{runtimeActionMessage}</p> : null}
-                {!errorMessage && !isDirty ? <p className="text-sm text-muted-foreground">No unsaved changes.</p> : null}
+                {!errorMessage && !isDirty ? <p className="text-sm text-muted-foreground">{t("noUnsavedChanges")}</p> : null}
               </div>
             </div>
           </div>
@@ -585,8 +587,8 @@ export function ExecutionWorkspaceDetail() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-border bg-card p-5">
               <div className="space-y-1">
-                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Linked objects</div>
-                <h2 className="text-lg font-semibold">Workspace context</h2>
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("linkedObjects")}</div>
+                <h2 className="text-lg font-semibold">{t("workspaceContext")}</h2>
               </div>
               <Separator className="my-4" />
               <DetailRow label="Project">
@@ -630,8 +632,8 @@ export function ExecutionWorkspaceDetail() {
 
             <div className="rounded-2xl border border-border bg-card p-5">
               <div className="space-y-1">
-                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Paths and refs</div>
-                <h2 className="text-lg font-semibold">Concrete location</h2>
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("pathsAndRefs")}</div>
+                <h2 className="text-lg font-semibold">{t("concreteLocation")}</h2>
               </div>
               <Separator className="my-4" />
               <DetailRow label="Working dir">
@@ -675,8 +677,8 @@ export function ExecutionWorkspaceDetail() {
             <div className="rounded-2xl border border-border bg-card p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1">
-                  <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Runtime services</div>
-                  <h2 className="text-lg font-semibold">Attached services</h2>
+                  <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("runtimeServices")}</div>
+                  <h2 className="text-lg font-semibold">{t("attachedServices")}</h2>
                   <p className="text-sm text-muted-foreground">
                     Source: {runtimeConfigSource === "execution_workspace"
                       ? "execution workspace override"
@@ -753,8 +755,8 @@ export function ExecutionWorkspaceDetail() {
 
             <div className="rounded-2xl border border-border bg-card p-5">
               <div className="space-y-1">
-                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Recent operations</div>
-                <h2 className="text-lg font-semibold">Runtime and cleanup logs</h2>
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("recentOperations")}</div>
+                <h2 className="text-lg font-semibold">{t("runtimeAndCleanupLogs")}</h2>
               </div>
               <Separator className="my-4" />
               {workspaceOperationsQuery.isLoading ? (
@@ -797,8 +799,8 @@ export function ExecutionWorkspaceDetail() {
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div className="space-y-1">
-              <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Linked issues</div>
-              <h2 className="text-lg font-semibold">Issues using this workspace</h2>
+              <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{t("linkedIssues")}</div>
+              <h2 className="text-lg font-semibold">{t("issuesUsingThisWorkspace")}</h2>
               <p className="text-sm text-muted-foreground">
                 Any issue attached to this execution workspace appears here so you can review the full session context before reusing or closing it.
               </p>

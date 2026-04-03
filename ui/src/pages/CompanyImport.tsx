@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   CompanyPortabilityCollisionStrategy,
@@ -190,9 +191,10 @@ function ImportPreviewPane({
   action: string | null;
   renamedTo: string | null;
 }) {
+  const { t } = useTranslation("settings");
   if (!selectedFile || content === null) {
     return (
-      <EmptyState icon={Package} message="Select a file to preview its contents." />
+      <EmptyState icon={Package} message={t("selectFileToPreview")} />
     );
   }
 
@@ -644,6 +646,7 @@ async function readLocalPackageZip(file: File): Promise<{
 // ── Main page ─────────────────────────────────────────────────────────
 
 export function CompanyImport() {
+  const { t } = useTranslation("settings");
   const {
     selectedCompanyId,
     selectedCompany,
