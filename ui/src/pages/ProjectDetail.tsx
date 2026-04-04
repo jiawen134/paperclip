@@ -772,7 +772,7 @@ export function ProjectDetail() {
 
   if (isLoading) return <PageSkeleton variant="detail" />;
   if (error) return <p className="text-sm text-destructive">{error.message}</p>;
-  if (!project) return null;
+  if (!project) return <p className="py-10 text-center text-sm text-muted-foreground">Project not found.</p>;
 
   const handleTabChange = (tab: ProjectTab) => {
     // Cache the active tab per project

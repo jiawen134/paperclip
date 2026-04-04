@@ -1068,7 +1068,7 @@ export function IssueDetail() {
 
   if (isLoading) return <p className="text-sm text-muted-foreground">{t("loading")}</p>;
   if (error) return <p className="text-sm text-destructive">{error.message}</p>;
-  if (!issue) return null;
+  if (!issue) return <p className="py-10 text-center text-sm text-muted-foreground">Issue not found.</p>;
 
   // Ancestors are returned oldest-first from the server (root at end, immediate parent at start)
   const ancestors = issue.ancestors ?? [];

@@ -114,7 +114,7 @@ export function GoalDetail() {
 
   if (isLoading) return <PageSkeleton variant="detail" />;
   if (error) return <p className="text-sm text-destructive">{error.message}</p>;
-  if (!goal) return null;
+  if (!goal) return <p className="py-10 text-center text-sm text-muted-foreground">Goal not found.</p>;
 
   return (
     <div className="space-y-6">

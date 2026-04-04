@@ -798,7 +798,7 @@ export function AgentDetail() {
 
   if (isLoading) return <PageSkeleton variant="detail" />;
   if (error) return <p className="text-sm text-destructive">{error.message}</p>;
-  if (!agent) return null;
+  if (!agent) return <p className="py-10 text-center text-sm text-muted-foreground">Agent not found.</p>;
   if (!urlRunId && !urlTab) {
     return <Navigate to={`/agents/${canonicalAgentRef}/dashboard`} replace />;
   }

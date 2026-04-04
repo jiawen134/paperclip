@@ -46,6 +46,7 @@ import { NotFoundPage } from "./pages/NotFound";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { loadLastInboxTab } from "./lib/inbox";
 import { shouldRedirectCompanylessRouteToOnboarding } from "./lib/onboarding-route";
 
@@ -304,6 +305,7 @@ function NoCompaniesStartPage() {
 export function App() {
   return (
     <>
+      <ErrorBoundary>
       <Routes>
         <Route path="auth" element={<AuthPage />} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
@@ -351,6 +353,7 @@ export function App() {
           <Route path="*" element={<NotFoundPage scope="global" />} />
         </Route>
       </Routes>
+      </ErrorBoundary>
       <OnboardingWizard />
     </>
   );
